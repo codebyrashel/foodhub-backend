@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -8,113 +7,27 @@ datasource db {
   provider = "postgresql"
 }
 
-model Category {
-  id        String   @id
-  name      String   @unique
-  slug      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime
-  Meal      Meal[]
-}
-
-model Meal {
-  id              String          @id
-  name            String
-  description     String?
-  price           Float
-  imageUrl        String?
-  isAvailable     Boolean         @default(true)
-  providerId      String
-  categoryId      String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime
-  Category        Category?       @relation(fields: [categoryId], references: [id])
-  ProviderProfile ProviderProfile @relation(fields: [providerId], references: [id])
-  OrderItem       OrderItem[]
-  Review          Review[]
-}
-
-model Order {
-  id              String          @id
-  customerId      String
-  providerId      String
-  totalAmount     Float
-  deliveryAddress String
-  status          OrderStatus     @default(PLACED)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime
-  User            User            @relation(fields: [customerId], references: [id])
-  ProviderProfile ProviderProfile @relation(fields: [providerId], references: [id])
-  OrderItem       OrderItem[]
-}
-
-model OrderItem {
-  id        String @id
-  orderId   String
-  mealId    String
-  quantity  Int
-  unitPrice Float
-  Meal      Meal   @relation(fields: [mealId], references: [id])
-  Order     Order  @relation(fields: [orderId], references: [id])
-}
-
-model ProviderProfile {
-  id          String   @id
-  userId      String   @unique
-  name        String
-  description String?
-  address     String?
-  phone       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime
-  Meal        Meal[]
-  Order       Order[]
-  User        User     @relation(fields: [userId], references: [id])
-}
-
-model Review {
-  id         String   @id
-  customerId String
-  mealId     String
-  rating     Int
-  comment    String?
-  createdAt  DateTime @default(now())
-  User       User     @relation(fields: [customerId], references: [id])
-  Meal       Meal     @relation(fields: [mealId], references: [id])
-}
-
 model User {
-  id              String           @id
-  name            String
-  email           String           @unique
-  password        String
-  role            UserRole         @default(CUSTOMER)
-  isActive        Boolean          @default(true)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime
-  Order           Order[]
-  ProviderProfile ProviderProfile?
-  Review          Review[]
-  emailVerified   Boolean          @default(false)
-  image           String?
-  sessions        Session[]
-  accounts        Account[]
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  role          String?   @default("customer")
+  sessions      Session[]
+  accounts      Account[]
 
+  //! relations
+  providerProfile ProviderProfile?
+  meals           Meal[]
+  ordersPlaced    Order[]          @relation("CustomerOrders")
+  ordersReceived  Order[]          @relation("ProviderOrders")
+  reviews         Review[]
+
+  @@unique([email])
   @@map("user")
-}
-
-enum OrderStatus {
-  PLACED
-  PREPARING
-  READY
-  DELIVERED
-  CANCELLED
-}
-
-enum UserRole {
-  CUSTOMER
-  PROVIDER
-  ADMIN
 }
 
 model Session {
@@ -163,4 +76,97 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+model ProviderProfile {
+  id             String  @id @default(uuid())
+  userId         String  @unique
+  restaurantName String
+  cuisineType    String
+  address        String
+  coverImageUrl  String?
+
+  //! relation to User table
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("provider_profile")
+}
+
+model Category {
+  id       String  @id @default(uuid())
+  name     String  @unique
+  imageUrl String?
+
+  //? relations
+  meals Meal[]
+
+  @@map("category")
+}
+
+model Meal {
+  id          String   @id @default(uuid())
+  providerId  String
+  categoryId  String
+  name        String
+  description String?
+  price       Decimal  @db.Decimal(10, 2)
+  imageUrl    String?
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  //! relations
+  provider   User        @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  category   Category    @relation(fields: [categoryId], references: [id])
+  orderItems OrderItem[]
+  reviews    Review[]
+
+  @@map("meal")
+}
+
+model Order {
+  id              String   @id @default(uuid())
+  customerId      String
+  providerId      String
+  deliveryAddress String
+  totalAmount     Decimal  @db.Decimal(10, 2)
+  status          String   @default("placed")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  //! relations
+  customer User        @relation("CustomerOrders", fields: [customerId], references: [id])
+  provider User        @relation("ProviderOrders", fields: [providerId], references: [id])
+  items    OrderItem[]
+
+  @@map("order")
+}
+
+model OrderItem {
+  id          String  @id @default(uuid())
+  orderId     String
+  mealId      String
+  quantity    Int
+  priceAtTime Decimal @db.Decimal(10, 2)
+
+  //? relations
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  meal  Meal  @relation(fields: [mealId], references: [id])
+
+  @@map("order_item")
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  customerId String
+  mealId     String
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now())
+
+  //? relations
+  customer User @relation(fields: [customerId], references: [id])
+  meal     Meal @relation(fields: [mealId], references: [id])
+
+  @@map("review")
 }
