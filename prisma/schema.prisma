@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Category {
+  id        String   @id
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  Meal      Meal[]
+}
+
+model Meal {
+  id              String          @id
+  name            String
+  description     String?
+  price           Float
+  imageUrl        String?
+  isAvailable     Boolean         @default(true)
+  providerId      String
+  categoryId      String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime
+  Category        Category?       @relation(fields: [categoryId], references: [id])
+  ProviderProfile ProviderProfile @relation(fields: [providerId], references: [id])
+  OrderItem       OrderItem[]
+  Review          Review[]
+}
+
+model Order {
+  id              String          @id
+  customerId      String
+  providerId      String
+  totalAmount     Float
+  deliveryAddress String
+  status          OrderStatus     @default(PLACED)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime
+  User            User            @relation(fields: [customerId], references: [id])
+  ProviderProfile ProviderProfile @relation(fields: [providerId], references: [id])
+  OrderItem       OrderItem[]
+}
+
+model OrderItem {
+  id        String @id
+  orderId   String
+  mealId    String
+  quantity  Int
+  unitPrice Float
+  Meal      Meal   @relation(fields: [mealId], references: [id])
+  Order     Order  @relation(fields: [orderId], references: [id])
+}
+
+model ProviderProfile {
+  id          String   @id
+  userId      String   @unique
+  name        String
+  description String?
+  address     String?
+  phone       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  Meal        Meal[]
+  Order       Order[]
+  User        User     @relation(fields: [userId], references: [id])
+}
+
+model Review {
+  id         String   @id
+  customerId String
+  mealId     String
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now())
+  User       User     @relation(fields: [customerId], references: [id])
+  Meal       Meal     @relation(fields: [mealId], references: [id])
+}
+
+model User {
+  id              String           @id
+  name            String
+  email           String           @unique
+  password        String
+  role            UserRole         @default(CUSTOMER)
+  isActive        Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime
+  Order           Order[]
+  ProviderProfile ProviderProfile?
+  Review          Review[]
+}
+
+enum OrderStatus {
+  PLACED
+  PREPARING
+  READY
+  DELIVERED
+  CANCELLED
+}
+
+enum UserRole {
+  CUSTOMER
+  PROVIDER
+  ADMIN
+}
