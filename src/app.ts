@@ -4,6 +4,7 @@ import { toNodeHandler } from "better-auth/node";
 import { auth } from "./utils/auth";
 import { prisma } from "./lib/prisma";
 import { errorHandler } from "./middlewares/errorHandler";
+
 import categoryRoutes from "./routes/category.routes";
 import adminCategoryRoutes from "./routes/adminCategory.routes";
 import mealRoutes from "./routes/meal.routes";
@@ -57,19 +58,30 @@ app.get("/", (req, res) => {
   res.send("Hello from FoodHub backend");
 });
 
-app.use(errorHandler);
+// Routes
 app.use("/api/categories", categoryRoutes);
 app.use("/api/admin", adminCategoryRoutes);
-app.use("/api/meals", mealRoutes);
-app.use("/api/providers", providerRoutes);
-app.use("/api/provider", providerMealRoutes);
-app.use("/api/orders", orderRoutes);
-app.use("/api/provider", providerOrderRoutes);
-app.use("/api/reviews", reviewRoutes);
-app.use("/api/onboarding", onboardingRoutes);
 app.use("/api/admin", adminUserRoutes);
 app.use("/api/admin", adminOrderRoutes);
-app.use("/api/me", meRoutes);
+
+app.use("/api/meals", mealRoutes);
+app.use("/api/providers", providerRoutes);
+
+app.use("/api/provider", providerMealRoutes);
+app.use("/api/provider", providerOrderRoutes);
 app.use("/api/provider", providerMeProfileRoutes);
+
+app.use("/api/orders", orderRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/onboarding", onboardingRoutes);
+app.use("/api/me", meRoutes);
+
+// 404 handler (JSON)
+app.use((req, res) => {
+  res.status(404).json({ message: "Route not found" });
+});
+
+// Error handler
+app.use(errorHandler);
 
 export default app;
