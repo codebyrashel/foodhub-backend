@@ -13,6 +13,8 @@ import orderRoutes from "./routes/order.routes";
 import providerOrderRoutes from "./routes/providerOrder.routes";
 import reviewRoutes from "./routes/review.routes";
 import onboardingRoutes from "./routes/onboarding.routes";
+import adminUserRoutes from "./routes/adminUser.routes";
+import adminOrderRoutes from "./routes/adminOrder.routes";
 
 const app: Application = express();
 
@@ -63,5 +65,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/provider", providerOrderRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/onboarding", onboardingRoutes);
+app.use("/api/admin", adminUserRoutes);
+app.use("/api/admin", adminOrderRoutes);
 
 export default app;
