@@ -6,6 +6,9 @@ import { prisma } from "./lib/prisma";
 import { errorHandler } from "./middlewares/errorHandler";
 import categoryRoutes from "./routes/category.routes";
 import adminCategoryRoutes from "./routes/adminCategory.routes";
+import mealRoutes from "./routes/meal.routes";
+import providerRoutes from "./routes/provider.routes";
+import providerMealRoutes from "./routes/providerMeal.routes";
 
 const app: Application = express();
 
@@ -49,5 +52,8 @@ app.get("/", (req, res) => {
 app.use(errorHandler);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/admin", adminCategoryRoutes);
+app.use("/api/meals", mealRoutes);
+app.use("/api/providers", providerRoutes);
+app.use("/api/provider", providerMealRoutes);
 
 export default app;
