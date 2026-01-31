@@ -11,6 +11,7 @@ import providerRoutes from "./routes/provider.routes";
 import providerMealRoutes from "./routes/providerMeal.routes";
 import orderRoutes from "./routes/order.routes";
 import providerOrderRoutes from "./routes/providerOrder.routes";
+import reviewRoutes from "./routes/review.routes";
 
 const app: Application = express();
 
@@ -59,5 +60,6 @@ app.use("/api/providers", providerRoutes);
 app.use("/api/provider", providerMealRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/provider", providerOrderRoutes);
+app.use("/api/reviews", reviewRoutes);
 
 export default app;

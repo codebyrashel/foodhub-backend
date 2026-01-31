@@ -188,5 +188,6 @@ model Review {
   customer User @relation(fields: [customerId], references: [id])
   meal     Meal @relation(fields: [mealId], references: [id])
 
+  @@unique([customerId, mealId])
   @@map("review")
 }
