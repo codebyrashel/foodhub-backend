@@ -9,6 +9,8 @@ import adminCategoryRoutes from "./routes/adminCategory.routes";
 import mealRoutes from "./routes/meal.routes";
 import providerRoutes from "./routes/provider.routes";
 import providerMealRoutes from "./routes/providerMeal.routes";
+import orderRoutes from "./routes/order.routes";
+import providerOrderRoutes from "./routes/providerOrder.routes";
 
 const app: Application = express();
 
@@ -55,5 +57,7 @@ app.use("/api/admin", adminCategoryRoutes);
 app.use("/api/meals", mealRoutes);
 app.use("/api/providers", providerRoutes);
 app.use("/api/provider", providerMealRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/provider", providerOrderRoutes);
 
 export default app;
