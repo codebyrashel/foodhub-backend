@@ -4,6 +4,8 @@ import { toNodeHandler } from "better-auth/node";
 import { auth } from "./utils/auth";
 import { prisma } from "./lib/prisma";
 import { errorHandler } from "./middlewares/errorHandler";
+import categoryRoutes from "./routes/category.routes";
+import adminCategoryRoutes from "./routes/adminCategory.routes";
 
 const app: Application = express();
 
@@ -45,5 +47,7 @@ app.get("/", (req, res) => {
 });
 
 app.use(errorHandler);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/admin", adminCategoryRoutes);
 
 export default app;
