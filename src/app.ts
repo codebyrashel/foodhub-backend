@@ -3,6 +3,7 @@ import cors from "cors";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./utils/auth";
 import { prisma } from "./lib/prisma";
+import { errorHandler } from "./middlewares/errorHandler";
 
 const app: Application = express();
 
@@ -42,5 +43,7 @@ app.get("/health", async (req: Request, res: Response) => {
 app.get("/", (req, res) => {
   res.send("Hello from FoodHub backend");
 });
+
+app.use(errorHandler);
 
 export default app;
