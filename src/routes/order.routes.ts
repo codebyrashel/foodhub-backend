@@ -21,7 +21,7 @@ router.post("/", async (req: any, res, next) => {
     const { deliveryAddress, items } = parsed.data;
 
     const mealIds = items.map((i) => i.mealId);
-    const meals = await prisma.meal.findMany({
+    const meals: any[] = await prisma.meal.findMany({
       where: {
         id: { in: mealIds },
         isAvailable: true,
@@ -38,19 +38,19 @@ router.post("/", async (req: any, res, next) => {
       throw new ApiError(400, "Some meals are unavailable or do not exist");
     }
 
-    const providerIds = new Set(meals.map((m) => m.providerId));
+    const providerIds = new Set(meals.map((m: any) => m.providerId));
     if (providerIds.size !== 1) {
       throw new ApiError(400, "All items in an order must be from the same provider");
     }
     const providerId = Array.from(providerIds)[0];
-  
+
     const qtyMap = new Map(items.map((i) => [i.mealId, i.quantity]));
-    const totalAmount = meals.reduce((sum, m) => {
+    const totalAmount = meals.reduce((sum: number, m: any) => {
       const qty = qtyMap.get(m.id) || 0;
       return sum + Number(m.price) * qty;
     }, 0);
 
-    const created = await prisma.$transaction(async (tx) => {
+    const created = await prisma.$transaction(async (tx: any) => {
       const order = await tx.order.create({
         data: {
           customerId: req.user.id,
@@ -59,7 +59,7 @@ router.post("/", async (req: any, res, next) => {
           totalAmount,
           status: "placed",
           items: {
-            create: meals.map((m) => ({
+            create: meals.map((m: any) => ({
               mealId: m.id,
               quantity: qtyMap.get(m.id)!,
               priceAtTime: m.price, // snapshot

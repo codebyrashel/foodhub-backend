@@ -32,7 +32,7 @@ router.post("/provider", async (req: any, res, next) => {
       throw new ApiError(409, "Provider profile already exists");
     }
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       await tx.user.update({
         where: { id: userId },
         data: { role: "provider" },

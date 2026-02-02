@@ -1,7 +1,10 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma";
 import { ApiError } from "../middlewares/errorHandler";
-import { mealIdParamSchema, mealQuerySchema } from "../validators/meal.validators";
+import {
+  mealIdParamSchema,
+  mealQuerySchema,
+} from "../validators/meal.validators";
 
 const router = Router();
 
@@ -12,9 +15,11 @@ const router = Router();
 router.get("/", async (req, res, next) => {
   try {
     const parsed = mealQuerySchema.safeParse(req.query);
-    if (!parsed.success) throw new ApiError(400, "Invalid query", parsed.error.flatten());
+    if (!parsed.success)
+      throw new ApiError(400, "Invalid query", parsed.error.flatten());
 
-    const { categoryId, providerId, search, minPrice, maxPrice, isAvailable } = parsed.data;
+    const { categoryId, providerId, search, minPrice, maxPrice, isAvailable } =
+      parsed.data;
 
     const meals = await prisma.meal.findMany({
       where: {
@@ -61,16 +66,21 @@ router.get("/", async (req, res, next) => {
 router.get("/:id", async (req, res, next) => {
   try {
     const params = mealIdParamSchema.safeParse(req.params);
-    if (!params.success) throw new ApiError(400, "Invalid id", params.error.flatten());
+    if (!params.success)
+      throw new ApiError(400, "Invalid id", params.error.flatten());
 
     const meal = await prisma.meal.findFirst({
       where: { id: params.data.id, provider: { status: "active" } },
       include: {
         category: true,
-        provider: { select: { id: true, name: true, image: true, providerProfile: true } },
+        provider: {
+          select: { id: true, name: true, image: true, providerProfile: true },
+        },
         reviews: {
           orderBy: { createdAt: "desc" },
-          include: { customer: { select: { id: true, name: true, image: true } } },
+          include: {
+            customer: { select: { id: true, name: true, image: true } },
+          },
         },
       },
     });
