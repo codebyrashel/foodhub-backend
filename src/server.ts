@@ -9,8 +9,8 @@ async function main() {
     await prisma.$connect();
     console.log("Connected to the database");
 
-    // Only listen if not running on Vercel
-    if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
+    // Listen on port (skip only for Vercel which handles it automatically)
+    if (!process.env.VERCEL) {
       app.listen(PORT, () => {
         console.log(`Server is running on http://localhost:${PORT}`);
       });
